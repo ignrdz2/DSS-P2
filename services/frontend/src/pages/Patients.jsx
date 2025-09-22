@@ -1,22 +1,22 @@
 // src/pages/Patients.jsx
-import React, { useState, useEffect } from 'react';
-import api from '../api.js';
-import Header from '../components/Header.jsx';
-import RightSideMenu from '../components/RightSideMenu.jsx';
+import React, { useState, useEffect } from "react";
+import api from "../api.js";
+import Header from "../components/Header.jsx";
+import RightSideMenu from "../components/RightSideMenu.jsx";
 
 export default function Patients() {
   const [patients, setPatients] = useState([]);
-  const [loading,  setLoading]  = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchPatients() {
       setLoading(true);
       try {
-        const res = await api.get('/patients');
+        const res = await api.get("/users");
         // assume API returns { patients: [...] }
         setPatients(res.data.patients);
       } catch (err) {
-        console.error('Failed to load patients', err);
+        console.error("Failed to load patients", err);
       } finally {
         setLoading(false);
       }
@@ -44,7 +44,7 @@ export default function Patients() {
               </thead>
               <tbody>
                 {patients.length > 0 ? (
-                  patients.map(p => (
+                  patients.map((p) => (
                     <tr key={p.id} className="hover:bg-gray-50">
                       <td className="p-3">{p.id}</td>
                       <td className="p-3">{p.name}</td>
