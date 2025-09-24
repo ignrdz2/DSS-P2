@@ -4,8 +4,9 @@ import api from '../api.js';
 
 export default function Register() {
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
+    username: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -22,8 +23,16 @@ export default function Register() {
       setMsg({ text: "Passwords don't match", error: true });
       return;
     }
+    // Construir el objeto con los nombres correctos
+    const payload = {
+      username: form.username,
+      first_name: form.first_name,
+      last_name: form.last_name,
+      email: form.email,
+      password: form.password
+    };
     try {
-      await api.post('/auth/register', form);
+      await api.post('/auth/register', payload);
       setMsg({ text: 'Registration successful! Redirecting…', error: false });
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
@@ -39,17 +48,25 @@ export default function Register() {
       >
         <h2 className="text-2xl font-semibold mb-6">Register</h2>
         <input
-          name="firstName"
-          placeholder="First Name"
-          value={form.firstName}
+          name="username"
+          placeholder="Username"
+          value={form.username}
           onChange={handleChange}
           className="w-full p-2 border rounded mb-4"
           required
         />
         <input
-          name="lastName"
+          name="first_name"
+          placeholder="First Name"
+          value={form.first_name}
+          onChange={handleChange}
+          className="w-full p-2 border rounded mb-4"
+          required
+        />
+        <input
+          name="last_name"
           placeholder="Last Name"
-          value={form.lastName}
+          value={form.last_name}
           onChange={handleChange}
           className="w-full p-2 border rounded mb-4"
           required

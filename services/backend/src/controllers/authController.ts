@@ -73,9 +73,15 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
 
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.params.id;
+  // Verificación de autorización
+  const authUserId = (req as any).user.id;
+  if (authUserId !== userId) {
+    return res.status(403).json({ message: "Forbidden: cannot modify other users" });
+  }
   const { username, password, email, first_name, last_name } = req.body;
   try {
-  const user: User = {
+    const user: User = {
+      id: userId,
       username,
       password,
       email,
@@ -83,7 +89,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
       last_name
     };
     const userDB = await AuthService.updateUser(user);
-      res.status(201).json(userDB);
+    res.status(201).json(userDB);
   } catch (err) {
     next(err);
   }

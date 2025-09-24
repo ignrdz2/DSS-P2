@@ -1,0 +1,23 @@
+                                             Table "public.users"
+         Column         |           Type           | Collation | Nullable |              Default              
+------------------------+--------------------------+-----------+----------+-----------------------------------
+ id                     | integer                  |           | not null | nextval('users_id_seq'::regclass)
+ username               | character varying(255)   |           | not null | 
+ email                  | character varying(255)   |           | not null | 
+ password               | character varying(255)   |           | not null | 
+ first_name             | character varying(255)   |           | not null | 
+ last_name              | character varying(255)   |           | not null | 
+ activated              | boolean                  |           | not null | 
+ reset_password_token   | character varying(255)   |           |          | 
+ reset_password_expires | timestamp with time zone |           |          | 
+ invite_token           | character varying(255)   |           |          | 
+ invite_token_expires   | timestamp with time zone |           |          | 
+ picture_path           | character varying(255)   |           |          | 
+Indexes:
+    "users_pkey" PRIMARY KEY, btree (id)
+    "users_email_unique" UNIQUE CONSTRAINT, btree (email)
+    "users_username_unique" UNIQUE CONSTRAINT, btree (username)
+Referenced by:
+    TABLE "clinical_histories" CONSTRAINT "clinical_histories_user_id_foreign" FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    TABLE "invoices" CONSTRAINT "invoices_userid_foreign" FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE
+

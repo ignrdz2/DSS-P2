@@ -28,15 +28,13 @@ app.use(express.urlencoded({ extended: true }));
 
 setupSwagger(app);
 
+
 app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
 
-// Protect everything below
-app.use(authMiddleware);
-
-
-app.use('/clinical-history', clinicalHistoryRoutes);
-app.use('/invoices', invoiceRoutes);
+// Rutas protegidas
+app.use('/clinical-history', authMiddleware, clinicalHistoryRoutes);
+app.use('/invoices', authMiddleware, invoiceRoutes);
 
 // Global error handler
 app.use(errorHandler);

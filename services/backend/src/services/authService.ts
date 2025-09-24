@@ -4,6 +4,7 @@ import db from "../db";
 import { User, UserRow } from "../types/user";
 import jwtUtils from "../utils/jwt";
 import ejs from "ejs";
+import bcrypt from "bcrypt";
 
 const RESET_TTL = 1000 * 60 * 60; // 1h
 const INVITE_TTL = 1000 * 60 * 60 * 24 * 7; // 7d
@@ -19,9 +20,11 @@ class AuthService {
     // create invite token
     const invite_token = crypto.randomBytes(6).toString("hex");
     const invite_token_expires = new Date(Date.now() + INVITE_TTL);
+    // Mitigación: hashear la contraseña antes de guardar
+    const hashedPassword = await bcrypt.hash(user.password, 10);
     await db<UserRow>("users").insert({
       username: user.username,
-      password: user.password,
+      password: hashedPassword,
       email: user.email,
       first_name: user.first_name,
       last_name: user.last_name,
@@ -40,10 +43,19 @@ class AuthService {
     });
     const link = `${process.env.FRONTEND_URL}/activate-user?token=${invite_token}&username=${user.username}`;
 
+    // Mitigación: sanitizar los datos antes de insertarlos en la plantilla
+    
+    const escape = (str: string) =>
+      str.replace(/[&<>'"`]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;','`':'&#96;'}[c]));
+
+    const safeFirstName = escape(user.first_name);
+    const safeLastName = escape(user.last_name);
+    
+
     const template = `
       <html>
         <body>
-          <h1>Hello ${user.first_name} ${user.last_name}</h1>
+          <h1>Hello ${safeFirstName} ${safeLastName}</h1>
           <p>Click <a href="${link}">here</a> to activate your account.</p>
         </body>
       </html>`;
@@ -76,7 +88,9 @@ class AuthService {
       .andWhere("activated", true)
       .first();
     if (!user) throw new Error("Invalid email or not activated");
-    if (password != user.password) throw new Error("Invalid password");
+    // Mitigación: comparar el hash
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Invalid password");
     return user;
   }
 
@@ -119,9 +133,10 @@ class AuthService {
       .andWhere("reset_password_expires", ">", new Date())
       .first();
     if (!row) throw new Error("Invalid or expired reset token");
-
+    // Mitigación: hashear la nueva contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     await db("users").where({ id: row.id }).update({
-      password: newPassword,
+      password: hashedPassword,
       reset_password_token: null,
       reset_password_expires: null,
     });
@@ -133,10 +148,11 @@ class AuthService {
       .andWhere("invite_token_expires", ">", new Date())
       .first();
     if (!row) throw new Error("Invalid or expired invite token");
-
+    // Mitigación: hashear la nueva contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     await db("users")
       .update({
-        password: newPassword,
+        password: hashedPassword,
         invite_token: null,
         invite_token_expires: null,
       })

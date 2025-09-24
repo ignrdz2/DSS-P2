@@ -16,7 +16,12 @@ interface InvoiceRow {
 class InvoiceService {
   static async list( userId: string, status?: string, operator?: string): Promise<Invoice[]> {
     let q = db<InvoiceRow>('invoices').where({ userId: userId });
-    if (status) q = q.andWhereRaw(" status "+ operator + " '"+ status +"'");
+    if (status) {
+      // Mitigación: Validar operador y usar parámetros
+      const allowedOps = ['=', '!=', '<', '>', '<=', '>='];
+      const op = allowedOps.includes(operator || '') ? operator : '=';
+      q = q.andWhere('status', op, status);
+    }
     const rows = await q.select();
     const invoices = rows.map(row => ({
       id: row.id,
@@ -39,6 +44,11 @@ class InvoiceService {
     // use axios to call http://paymentBrand/payments as a POST request
     // with the body containing ccNumber, ccv, expirationDate
     // and handle the response accordingly
+    // Mitigación SSRF: Validar el destino de paymentBrand
+    const allowedBrands = ['visa', 'mastercard'];
+    if (!allowedBrands.includes(paymentBrand)) {
+      throw new Error('Invalid payment brand');
+    }
     const paymentResponse = await axios.post(`http://${paymentBrand}/payments`, {
       ccNumber,
       ccv,
@@ -71,6 +81,10 @@ class InvoiceService {
     if (!invoice) {
       throw new Error('Invoice not found');
     }
+    // Mitigación: Validar nombre de archivo
+    if (!/^[\w\-\.]+\.pdf$/.test(pdfName)) {
+      throw new Error('Invalid file name');
+    }
     try {
       const filePath = `/invoices/${pdfName}`;
       const content = await fs.readFile(filePath, 'utf-8');
@@ -79,8 +93,7 @@ class InvoiceService {
       // send the error to the standard output
       console.error('Error reading receipt file:', error);
       throw new Error('Receipt not found');
-
-    } 
+    }
 
   };
 
