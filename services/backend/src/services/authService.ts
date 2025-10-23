@@ -44,13 +44,23 @@ class AuthService {
     const link = `${process.env.FRONTEND_URL}/activate-user?token=${invite_token}&username=${user.username}`;
 
     // Mitigación: sanitizar los datos antes de insertarlos en la plantilla
-    
+
     const escape = (str: string) =>
-      str.replace(/[&<>'"`]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;','`':'&#96;'}[c]));
+      str.replace(
+        /[&<>'"`]/g,
+        (c) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+            "`": "&#96;",
+          }[c])
+      );
 
     const safeFirstName = escape(user.first_name);
     const safeLastName = escape(user.last_name);
-    
 
     const template = `
       <html>
