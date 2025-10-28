@@ -5,13 +5,23 @@ funcionalidad de visualizar facturas. Implementadas mediante PyTest.
 
 - Diseñadas para ejecutarse contra el backend real en ejecución.
 - En la rama con mitigaciones (p4tests) deben PASAR.
-- En la rama con vulnerabilidades sin mitigar (maincopy) deberían FALLAR
+- En la rama con vulnerabilidades sin mitigar (main-copy) deberían FALLAR
   por errores 500, demoras anómalas o expansión indebida de resultados.
 
 Configurado según variables de entorno:
+(Asegurarse estar corriendo el backend de la rama correcta antes de ejecutar)
+
+En Branch p4tests (con mitigaciones):
 - BACKEND_URL: http://localhost:3000
 - JWT_SECRET: "default_secret"
 - USER_ID: "1"
+
+En Branch main-copy (sin mitigaciones):
+- BACKEND_URL: http://localhost:5000
+- JWT_SECRET: "secreto_super_seguro"
+- USER_ID: "1"
+
+Esto es asi porque al realizar las mitigaciones se cambiaron cosas del .env
 
 Opcionales:
 - REQUEST_TIMEOUT: timeout por request en segundos (default: 3.0)
@@ -24,7 +34,7 @@ Como ejecutar (Windows):
     pip install pytest requests
 
 - Ejecutar Pytest:
-    set BACKEND_URL=http://localhost:3000
+    set BACKEND_URL=http://localhost: (3000 o 5000 según rama)
     set USER_ID=1
     pytest -q tests\security\test_invoices_sql_injection.py (o la ruta correcta segun donde se ejecute)
 """

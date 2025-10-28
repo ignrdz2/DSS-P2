@@ -10,7 +10,7 @@ Funcionamiento:
   3) El link de activación es correcto (contiene token y username).
   4) Se usa el transporte SMTP configurado por variables de entorno.
 - En la rama con mitigaciones (p4tests) deben PASAR.
-- En la rama con vulnerabilidades sin mitigar (maincopy) deberían FALLAR
+- En la rama con vulnerabilidades sin mitigar (main-copy) deberían FALLAR
   al detectar valores sin escape en el HTML del correo.
  
 Diseño de la prueba
