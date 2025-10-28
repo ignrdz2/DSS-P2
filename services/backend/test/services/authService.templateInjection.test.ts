@@ -1,5 +1,5 @@
 /**
-2. Pruebas unitarias que validen la mitigación del Template Injection
+1. Pruebas unitarias que validen la mitigación del Template Injection
 identificado en la funcionalidad de envío de correo al crear un nuevo
 usuario. Implementadas mediante JEST.
  
